@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>骥的个人主页</title>
+  <style>
+    /*
+      改这三处就够了：
+      1. 颜色：只改下面 :root 里的色值
+      2. 头像：替换同文件夹里的 avatar.jpg（竖图可用 --头像位置 调整圆框里露出的部位）
+      3. 文字和学习记录：改页面正文；新增记录时复制一个 <li class="记录">
+    */
+    :root {
+      --背景色: #0c2344;
+      --卡片色: rgba(255, 255, 255, 0.94);
+      --文字色: #10233f;
+      --次要文字: #3e5678;
+      --主题文字: #f7fbff;
+      --背景字颜色: #7eb6ff;
+      --强调色: #4d8dff;
+      --强调浅色: #e5f0ff;
+      --线条色: #8eb6ef;
+      --头像位置: center 30%;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-snap-type: y proximity;
+    }
+
+    body {
+      font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      color: var(--文字色);
+      background: linear-gradient(165deg, #07162e 0%, #0d2b56 48%, #16467f 100%);
+      line-height: 1.7;
+    }
+
+    /* 背景标语：蓝色、发虚；不参与阅读 */
+    .背景字 {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0.15em;
+      margin: 0;
+      padding: 6vh 4vw;
+      pointer-events: none;
+      user-select: none;
+      font-size: clamp(3.2rem, 9vw, 7rem);
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: 0.14em;
+      text-align: center;
+      color: var(--背景字颜色);
+      filter: blur(7px);
+      opacity: 0.72;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .导航 {
+      position: fixed;
+      z-index: 10;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 4px;
+      padding: 4px;
+      background: rgba(7, 22, 46, 0.72);
+      border: 1px solid rgba(160, 198, 255, 0.28);
+      border-radius: 999px;
+      box-shadow: 0 8px 28px rgba(4, 12, 28, 0.28);
+      backdrop-filter: blur(12px);
+    }
+
+    .导航 a {
+      padding: 8px 16px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-size: 14px;
+      color: #d7e7ff;
+    }
+
+    .导航 a:hover,
+    .导航 a:focus-visible {
+      color: #ffffff;
+      background: rgba(77, 141, 255, 0.28);
+      outline: none;
+    }
+
+    /* 右上角天气，配色与顶部导航一致 */
+    .天气 {
+      position: fixed;
+      z-index: 10;
+      top: 16px;
+      right: 20px;
+      min-width: 132px;
+      padding: 10px 14px 11px;
+      background: rgba(7, 22, 46, 0.72);
+      border: 1px solid rgba(160, 198, 255, 0.28);
+      border-radius: 16px;
+      box-shadow: 0 8px 28px rgba(4, 12, 28, 0.28);
+      backdrop-filter: blur(12px);
+      filter: none;
+      line-height: 1.35;
+    }
+
+    .天气 .地名 {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      color: #9ec4ff;
+    }
+
+    .天气 .温度 {
+      margin-top: 2px;
+      font-size: 1.45rem;
+      font-weight: 600;
+      color: var(--主题文字);
+    }
+
+    .天气 .状况 {
+      font-size: 13px;
+      color: #d7e7ff;
+    }
+
+    .屏 {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: safe center;
+      position: relative;
+      z-index: 1;
+      scroll-snap-align: start;
+      padding: 96px 20px 56px;
+    }
+
+    /* 主题文字保持清晰，不要跟背景一起发虚 */
+    .昵称,
+    .区标题 h2,
+    .卡片 h2,
+    .记录 h3 {
+      filter: none;
+    }
+
+    /* 第一屏：关于我 */
+    .关于 {
+      width: min(640px, 100%);
+      text-align: center;
+    }
+
+    .头像 {
+      width: 148px;
+      height: 148px;
+      object-fit: cover;
+      object-position: var(--头像位置);
+      border-radius: 50%;
+      border: 4px solid #f4f8ff;
+      box-shadow:
+        0 0 0 4px var(--强调色),
+        0 16px 40px rgba(4, 16, 40, 0.35);
+      background: #f7f4ea;
+    }
+
+    .昵称 {
+      margin-top: 22px;
+      font-size: clamp(2rem, 6vw, 2.75rem);
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: var(--主题文字);
+      text-shadow: 0 2px 16px rgba(4, 16, 40, 0.45);
+    }
+
+    .介绍 {
+      margin: 10px auto 0;
+      max-width: 26em;
+      color: #d7e7ff;
+      font-size: 1.05rem;
+      text-shadow: 0 2px 12px rgba(4, 16, 40, 0.4);
+    }
+
+    .资料 {
+      display: grid;
+      gap: 14px;
+      margin-top: 28px;
+      text-align: left;
+    }
+
+    .卡片 {
+      background: var(--卡片色);
+      border-radius: 18px;
+      padding: 18px 20px 16px;
+      box-shadow: 0 10px 30px rgba(4, 16, 40, 0.18);
+    }
+
+    .卡片 h2 {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      color: #1d4f9c;
+    }
+
+    .爱好 {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .爱好 li {
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: var(--强调浅色);
+      color: #1a4e98;
+      font-size: 14px;
+    }
+
+    .目标 {
+      margin-top: 8px;
+      color: var(--文字色);
+    }
+
+    .向下 {
+      margin-top: 28px;
+      color: #d7e7ff;
+      font-size: 14px;
+      text-decoration: none;
+    }
+
+    .向下:hover,
+    .向下:focus-visible {
+      color: #ffffff;
+    }
+
+    /* 第二屏：学习记录 */
+    .记录区 {
+      width: min(760px, 100%);
+    }
+
+    .区标题 {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .区标题 h2 {
+      font-size: clamp(1.6rem, 4vw, 2rem);
+      letter-spacing: 0.06em;
+      color: var(--主题文字);
+      text-shadow: 0 2px 16px rgba(4, 16, 40, 0.45);
+    }
+
+    .区标题 p {
+      margin-top: 6px;
+      color: #d7e7ff;
+      font-size: 15px;
+      text-shadow: 0 2px 12px rgba(4, 16, 40, 0.4);
+    }
+
+    .时间线 {
+      position: relative;
+      list-style: none;
+    }
+
+    .记录 {
+      position: relative;
+      padding: 0 0 28px 36px;
+    }
+
+    .记录:last-child {
+      padding-bottom: 0;
+    }
+
+    /* 圆点 */
+    .记录::before {
+      content: "";
+      position: absolute;
+      z-index: 1;
+      left: 0;
+      top: 18px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--强调色);
+      box-shadow: 0 0 0 4px var(--背景色);
+    }
+
+    /* 连到下一条的竖线，最后一条不用画 */
+    .记录:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      left: 7px;
+      top: 26px;
+      bottom: -26px;
+      width: 2px;
+      background: #8eb6ef;
+    }
+
+    .记录 article {
+      background: var(--卡片色);
+      border-radius: 16px;
+      padding: 16px 18px;
+      box-shadow: 0 10px 28px rgba(36, 48, 58, 0.05);
+    }
+
+    .时间 {
+      display: inline-block;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      color: #1d4f9c;
+    }
+
+    .记录 h3 {
+      margin-top: 2px;
+      font-size: 1.05rem;
+      color: var(--文字色);
+    }
+
+    .记录 p {
+      color: var(--次要文字);
+    }
+
+    .记录 a {
+      display: inline-block;
+      margin-top: 8px;
+      font-size: 14px;
+      color: #1d4f9c;
+      text-underline-offset: 3px;
+    }
+
+    .记录 a:hover,
+    .记录 a:focus-visible {
+      color: #0b2f6b;
+    }
+
+    @media (max-width: 860px) {
+      .天气 {
+        top: 72px;
+        right: 16px;
+      }
+
+      .屏 {
+        padding-top: 156px;
+      }
+    }
+
+    @media (min-width: 720px) {
+      .资料 {
+        grid-template-columns: 1fr 1.15fr;
+      }
+
+      .记录 {
+        width: 50%;
+        display: flex;
+        justify-content: flex-end;
+        padding: 0 32px 36px 0;
+      }
+
+      .记录:nth-child(even) {
+        margin-left: 50%;
+        justify-content: flex-start;
+        padding: 0 0 36px 32px;
+      }
+
+      .记录:last-child {
+        padding-bottom: 0;
+      }
+
+      .记录 article {
+        width: min(280px, 100%);
+      }
+
+      .记录::before {
+        left: auto;
+        right: -8px;
+      }
+
+      .记录:nth-child(even)::before {
+        right: auto;
+        left: -8px;
+      }
+
+      .记录:not(:last-child)::after {
+        left: auto;
+        right: -1px;
+      }
+
+      .记录:nth-child(even)::after {
+        right: auto;
+        left: -1px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 改背景标语：只改下面这几行。颜色在上面的 --背景字颜色 -->
+  <p class="背景字" aria-hidden="true">
+    越努力越心酸<br>
+    越努力越心酸<br>
+    越努力越心酸<br>
+    越努力越心酸<br>
+    越努力越心酸<br>
+    越努力越心酸
+  </p>
+
+  <nav class="导航">
+    <a href="#关于我">关于我</a>
+    <a href="#学习记录">学习记录</a>
+  </nav>
+
+  <aside class="天气" aria-live="polite">
+    <p class="地名">加利福尼亚</p>
+    <p class="温度">—</p>
+    <p class="状况">正在读取</p>
+  </aside>
+
+  <section class="屏" id="关于我">
+    <div class="关于">
+      <!-- 更换头像：用新图片覆盖同文件夹中的 avatar.jpg -->
+      <img class="头像" src="avatar.jpg" alt="骥的头像" width="148" height="148">
+
+      <!-- 改昵称 -->
+      <h1 class="昵称">骥</h1>
+
+      <!-- 改一句话介绍 -->
+      <p class="介绍">正在学做网页的学生，从第一行 Hello World 开始。</p>
+
+      <div class="资料">
+        <section class="卡片">
+          <h2>兴趣爱好</h2>
+          <!-- 增加爱好：再写一个 <li> -->
+          <ul class="爱好">
+            <li>写网页</li>
+            <li>看教程</li>
+            <li>记笔记</li>
+          </ul>
+        </section>
+        <section class="卡片">
+          <h2>学习目标</h2>
+          <!-- 改学习目标 -->
+          <p class="目标">学会独立做出自己的网站，并把每次练习留在学习记录里。</p>
+        </section>
+      </div>
+
+      <a class="向下" href="#学习记录">向下看学习记录</a>
+    </div>
+  </section>
+
+  <section class="屏" id="学习记录">
+    <div class="记录区">
+      <header class="区标题">
+        <h2>我的学习记录</h2>
+        <p>顺着时间，记下做过的每一个网页。</p>
+      </header>
+
+      <!--
+        增加一条学习记录：复制下面任意一个 <li class="记录"> ... </li>，
+        改时间、标题和说明。新的一条会自动排到时间线上。
+      -->
+      <ol class="时间线">
+        <li class="记录">
+          <article>
+            <time class="时间" datetime="2026-09">2026.09</time>
+            <h3>第一个网页</h3>
+            <p>Hello World</p>
+            <a href="hello.html">打开这个页面</a>
+          </article>
+        </li>
+        <li class="记录">
+          <article>
+            <time class="时间" datetime="2026-09">2026.09</time>
+            <h3>第一个个人网页</h3>
+            <p>我的个人主页</p>
+          </article>
+        </li>
+        <li class="记录">
+          <article>
+            <time class="时间" datetime="2026-09">2026.09</time>
+            <h3>第一次 API 调用</h3>
+            <p>我制作了一个天气查询工具</p>
+          </article>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <script>
+    /*
+      加利福尼亚大致位于北纬 36.78、西经 119.42。
+      按地名搜索会找到别的同名小镇，所以这里直接用坐标。
+      接口不需要密钥：https://open-meteo.com/
+    */
+    const 纬度 = 36.78;
+    const 经度 = -119.42;
+
+    function 天气描述(代码) {
+      if (代码 === 0) return "晴";
+      if (代码 <= 3) return "多云";
+      if (代码 === 45 || 代码 === 48) return "雾";
+      if (代码 >= 51 && 代码 <= 67) return "雨";
+      if (代码 >= 71 && 代码 <= 77) return "雪";
+      if (代码 >= 80 && 代码 <= 82) return "阵雨";
+      if (代码 === 85 || 代码 === 86) return "阵雪";
+      if (代码 >= 95) return "雷暴";
+      return "多变";
+    }
+
+    const 参数 = new URLSearchParams({
+      latitude: String(纬度),
+      longitude: String(经度),
+      current: "temperature_2m,weather_code",
+      timezone: "America/Los_Angeles"
+    });
+
+    fetch("https://api.open-meteo.com/v1/forecast?" + 参数)
+      .then(function (响应) {
+        if (!响应.ok) {
+          throw new Error("请求失败");
+        }
+        return 响应.json();
+      })
+      .then(function (数据) {
+        const 当前 = 数据.current;
+        document.querySelector(".温度").textContent = Math.round(当前.temperature_2m) + "°C";
+        document.querySelector(".状况").textContent = 天气描述(当前.weather_code);
+      })
+      .catch(function () {
+        document.querySelector(".温度").textContent = "—";
+        document.querySelector(".状况").textContent = "暂时没有天气";
+      });
+  </script>
+</body>
+</html>
